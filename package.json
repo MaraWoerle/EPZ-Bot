@@ -1,0 +1,25 @@
+{
+  "name": "EPZ-Bot",
+  "version": "3.0.0",
+  "author": "Mara Wörle",
+  "main": "index.js",
+  "types": "lib/types.ts",
+  "files": [
+    "index.ts",
+    "lib/",
+    "config.json"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "echo no tests specified",
+    "start": "node ./build/index.js"
+  },
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "mariadb": "^3.3.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.2"
+  }
+}
