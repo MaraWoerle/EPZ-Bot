@@ -43,7 +43,7 @@ export class Bot_Database {
         // Create a table for the channel if it not already exists
         var sql: string = 'CREATE TABLE IF NOT EXISTS `' + name + '` (username VARCHAR(255), \
             userId VARCHAR(255), \
-            message VARCHAR(255), \
+            message TEXT, \
             timestamp VARCHAR(255), \
             messageId VARCHAR(255) PRIMARY KEY)';
 
@@ -54,7 +54,7 @@ export class Bot_Database {
         // Create a table for the channel if it not already exists
         var sql: string = 'CREATE TABLE IF NOT EXISTS `' + name + '` (username VARCHAR(255), \
             userId VARCHAR(255), \
-            message VARCHAR(255), \
+            message TEXT, \
             timestamp VARCHAR(255), \
             messageId VARCHAR(255) PRIMARY KEY, \
             reactionUpvote INT DEFAULT (0), \
