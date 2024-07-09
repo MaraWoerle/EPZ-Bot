@@ -10,6 +10,7 @@
     "config.json"
   ],
   "scripts": {
+    "prebuild": "mv -n default-config.json config.json || echo config already exists",
     "build": "tsc -p tsconfig.json",
     "test": "echo no tests specified",
     "start": "node ./build/index.js"
