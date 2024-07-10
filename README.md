@@ -81,8 +81,19 @@ The `config.json` should include the following options:
 }
 ```
 
-> Note: The Upvote and Downvote emojis must be custom emojis. It doesn't work with standard discord emojis.
-
 > Note: You can add as many channels as you desire.
 
 ---
+
+###### Custom Emojis
+
+- For custom emojis you can add a Backslash `\` in front of the emoji to get the Identifier. This Identifier should look something like:
+`<:Name:########>`
+- To use this emoji, you will have to remove the leading `<:` and the appended `>` so the Identifier looks like this:
+`Name:########`
+
+###### Standard Emojis
+
+- For the standard Discord emojis you need the UTF-8 Encoding in the HTML URL format. You can Look up the Bytes on this [Website](https://apps.timwhitlock.info/emoji/tables/unicode).
+- Then you will have to format the bytes to look like this (replace the # with the bytes in hexadecimal):
+`%##%##%##`
