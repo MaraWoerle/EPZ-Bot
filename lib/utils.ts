@@ -1,5 +1,12 @@
-import { GuildEmoji, Message, MessageReaction, ReactionEmoji, formatEmoji } from "discord.js";
+import { GuildEmoji, GuildTextBasedChannel, Message, MessageReaction, ReactionEmoji } from "discord.js";
 import { json_servers } from "./types";
+
+export function validChannel(channel: GuildTextBasedChannel, servers: json_servers): boolean {
+    if (!channel.guild) return false;
+    if (typeof servers[channel.guild.id] == undefined) return false;
+    if (!servers[channel.guild.id].channelIds.includes(channel.id)) return false;
+    return true;
+}
 
 export function validMessage(message: Message, servers: json_servers): boolean {
     // Filter Bot Messages

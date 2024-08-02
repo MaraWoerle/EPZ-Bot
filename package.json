@@ -6,12 +6,15 @@
   "types": "lib/types.ts",
   "files": [
     "index.ts",
+    "deploy-commands.ts",
     "lib/",
-    "config.json"
+    "config.json",
+    "commands/"
   ],
   "scripts": {
     "build": "mv -n default-config.json config.json || echo config already exists; tsc -p tsconfig.json && echo build finished successfully",
     "test": "echo no tests specified",
+    "deploy-commands": "node ./build/deploy-commands.js",
     "start": "node ./build/index.js"
   },
   "license": "MIT",
