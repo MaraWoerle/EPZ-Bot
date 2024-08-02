@@ -5,25 +5,10 @@ import { database } from '../../index';
 
 const cfg = read();
 
-export var data: SlashCommandBuilder = new SlashCommandBuilder().setName('add-channel').setDescription('Adds the whole channel to the database');
-
-async function * messagesIterator (channel) {
-    let before = null
-    let done = false
-    while (!done) {
-        const messages = await channel.messages.fetch({ limit: 100, before })
-        if (messages.size > 0) {
-        before = messages.lastKey()
-        yield messages
-        } else done = true
-    }
-}
-
-async function * loadAllMessages (channel) {
-    for await (const messages of messagesIterator(channel)) {
-        for (const message of messages.values()) yield message
-    }
-}
+export var data: SlashCommandBuilder = new SlashCommandBuilder()
+    .setName('add-channel')
+    .setDescription('Adds the whole channel to the database')
+    .setDefaultMemberPermissions(0x8);
 
 export async function execute(interaction: ChatInputCommandInteraction): Promise<void> {
     var channel = await interaction.channel.fetch()
