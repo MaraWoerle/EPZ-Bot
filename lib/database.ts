@@ -24,19 +24,21 @@ export class Bot_Database {
         });
     }
 
-    async query(sql: string, values: Array<string> = []): Promise<void> {
+    async query(sql: string, values: Array<string> = []): Promise<string> {
         // Execute a query to the Database
+        var res: string;
         var conn: Connection | undefined;
         console.log("Executing: " + sql);
         try {
             conn = await this.connect();
-            const res: string = await conn.query(sql, values);
+            res = await conn.query(sql, values);
             console.log("\t" + res);
         } catch (err) {
             throw err;
         } finally {
             if (conn) conn.end();
         }
+        return res;
     }
 
     async createChannel(name: string): Promise<void> {
@@ -63,7 +65,7 @@ export class Bot_Database {
         await this.query(sql);
     }
 
-    logMessage(message: Message): void {
+    async logMessage(message: Message): Promise<void> {
         // Extract message data
         const username: string = message.author.username;
         const userId: string = message.author.id;
@@ -81,7 +83,7 @@ export class Bot_Database {
         )
 
         // Create sql query
-        var sql: string = 'INSERT INTO `' + channelName + '` (\
+        var sql: string = 'INSERT IGNORE INTO `' + channelName + '` (\
             username, \
             userId, \
             message, \
@@ -106,6 +108,8 @@ export class Bot_Database {
         if (!utls.validMessage(message, this.servers)) return;
         if (!utls.validReaction(reaction, this.servers)) return;
 
+        this.addMessage(message);
+
         // Get reaction name
         const reactionName: string = reaction.emoji.identifier;
 
@@ -116,7 +120,13 @@ export class Bot_Database {
         const messageId: string = reaction.message.id;
         const channelName: string = reaction.message.channel.name;
         const reactionType: string = reactionName === server.upvote ? 'reactionUpvote' : 'reactionDownvote';
-        const reactionCount: Number = Number(reaction.count) - 1;
+        var reactionCount = Number(reaction.count);
+
+        (await reaction.users.fetch()).forEach(user => {
+            if (user.bot) {
+                reactionCount--;
+            }
+        })
 
         // Log reaction
         console.log(
@@ -155,11 +165,11 @@ export class Bot_Database {
         if (message.channel.isDMBased()) return;
         await this.createVotedChannel(message.channel.name);
 
-        this.logMessage(message);
-
         // Add reactions
         await message.react(this.servers[serverId].upvote);
         await message.react(this.servers[serverId].downvote);
+
+        await this.logMessage(message);
     }
 }
 
