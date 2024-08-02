@@ -116,7 +116,13 @@ export class Bot_Database {
         const messageId: string = reaction.message.id;
         const channelName: string = reaction.message.channel.name;
         const reactionType: string = reactionName === server.upvote ? 'reactionUpvote' : 'reactionDownvote';
-        const reactionCount: Number = Number(reaction.count) - 1;
+        var reactionCount = Number(reaction.count);
+
+        (await reaction.users.fetch()).forEach(user => {
+            if (user.bot) {
+                reactionCount--;
+            }
+        })
 
         // Log reaction
         console.log(
