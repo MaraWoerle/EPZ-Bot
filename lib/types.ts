@@ -1,3 +1,5 @@
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+
 export interface json_bot {
     clientId: string;
     token: string;
@@ -23,4 +25,9 @@ export interface Config {
     bot: json_bot;
     database: json_database;
     servers: json_servers;
+}
+
+export interface Command {
+    data: SlashCommandBuilder;
+    execute(interaction: ChatInputCommandInteraction): void;
 }

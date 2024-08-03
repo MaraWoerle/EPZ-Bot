@@ -1,16 +1,13 @@
-import { Client, GatewayIntentBits, Partials, MessageReaction, Message, ReactionEmoji, GuildEmoji, PartialMessage, Collection, Events } from 'discord.js';
+import { Client, GatewayIntentBits, Partials, MessageReaction, Message, Collection, Events, User } from 'discord.js';
 import { read } from './lib/config';
 import { Bot_Database } from './lib/database';
-import * as utls from './lib/utils';
-import * as path from 'path';
-import * as fs from 'fs';
+import { Command, Config } from './lib/types';
+import * as utils from './lib/utils';
 
-const cfg = read();
-export const database = new Bot_Database(cfg.database, cfg.servers, cfg.bot);
-const foldersPath = path.join(__dirname, 'commands');
-const commandFolders = fs.readdirSync(foldersPath);
+const cfg: Config = read();
+export const database: Bot_Database = new Bot_Database(cfg.database, cfg.servers, cfg.bot);
 
-var commands: Collection<string, { execute(ChatInputCommandInteraction): void }> = new Collection();
+var commands: Collection<string, Command> = utils.loadCommands();
 
 const client: Client = new Client({
     intents: [
@@ -27,43 +24,29 @@ const client: Client = new Client({
     ], // Necessary for uncached messages/reactions
 });
 
-client.on('messageReactionAdd', async (reaction, user) => {
+client.on('messageReactionAdd', async (reaction: MessageReaction, user: User) => {
     if (user.bot) return;
     database.updateReactionCount(await reaction.fetch());
 });
 
-client.on('messageReactionRemove', async (reaction, user) => {
+client.on('messageReactionRemove', async (reaction: MessageReaction, user: User) => {
     if (user.bot) return;
     database.updateReactionCount(await reaction.fetch());
 });
 
-client.on('messageCreate', async message => {
-    database.addMessage(message);
+client.on('messageCreate', async (message: Message) => {
+    database.addMessage(await message.fetch());
 });
 
 client.once('ready', () => {
     database.createChannel("DMs");
-    for (const folder of commandFolders) {
-        const commandsPath = path.join(foldersPath, folder);
-        const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
-        for (const file of commandFiles) {
-            const filePath = path.join(commandsPath, file);
-            const command = require(filePath);
-            // Set a new item in the Collection with the key as the command name and the value as the exported module
-            if ('data' in command && 'execute' in command) {
-                commands.set(command.data.name, command);
-            } else {
-                console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
-            }
-        }
-    }
     console.log('Ready!');
 });
 
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
-	const command = commands.get(interaction.commandName);
+	const command: Command = commands.get(interaction.commandName);
 
 	if (!command) {
 		console.error(`No command matching ${interaction.commandName} was found.`);
@@ -71,9 +54,9 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 
 	try {
-		await command.execute(interaction);
+		command.execute(interaction);
 	} catch (error) {
-		console.error(error);
+		console.log(error);
 		if (interaction.replied || interaction.deferred) {
 			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
 		} else {
