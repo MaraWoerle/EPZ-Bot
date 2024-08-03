@@ -1,7 +1,7 @@
 import * as mariadb from 'mariadb';
 import { Connection } from 'mariadb';
 import { json_bot, json_database, json_servers } from './types';
-import { Message, MessageReaction } from 'discord.js';
+import { Collection, Message, MessageReaction, Snowflake, User } from 'discord.js';
 import * as utls from './utils';
 
 export class Bot_Database {
@@ -27,45 +27,41 @@ export class Bot_Database {
     async query(sql: string, values: Array<string> = []): Promise<string> {
         // Execute a query to the Database
         var res: string;
-        var conn: Connection | undefined;
+        var conn: Connection;
         console.log("Executing: " + sql);
         try {
             conn = await this.connect();
             res = await conn.query(sql, values);
-            console.log("\t" + res);
+            console.log("Result: " + res);
         } catch (err) {
-            throw err;
+            console.log(err);
         } finally {
-            if (conn) conn.end();
+            if(conn) conn.end();
         }
         return res;
     }
 
-    async createChannel(name: string): Promise<void> {
+    createChannel(name: string): void {
         // Create a table for the channel if it not already exists
-        var sql: string = 'CREATE TABLE IF NOT EXISTS `' + name + '` (username VARCHAR(255), \
+        this.query('CREATE TABLE IF NOT EXISTS `' + name + '` (username VARCHAR(255), \
             userId VARCHAR(255), \
             message TEXT, \
             timestamp VARCHAR(255), \
-            messageId VARCHAR(255) PRIMARY KEY)';
-
-        await this.query(sql);
+            messageId VARCHAR(255) PRIMARY KEY)');
     }
 
-    async createVotedChannel(name: string): Promise<void> {
+    createVotedChannel(name: string): void {
         // Create a table for the channel if it not already exists
-        var sql: string = 'CREATE TABLE IF NOT EXISTS `' + name + '` (username VARCHAR(255), \
+        this.query('CREATE TABLE IF NOT EXISTS `' + name + '` (username VARCHAR(255), \
             userId VARCHAR(255), \
             message TEXT, \
             timestamp VARCHAR(255), \
             messageId VARCHAR(255) PRIMARY KEY, \
             reactionUpvote INT DEFAULT (0), \
-            reactionDownvote INT DEFAULT (0))';
-
-        await this.query(sql);
+            reactionDownvote INT DEFAULT (0))');
     }
 
-    async logMessage(message: Message): Promise<void> {
+    logMessage(message: Message): void {
         // Extract message data
         const username: string = message.author.username;
         const userId: string = message.author.id;
@@ -82,17 +78,14 @@ export class Bot_Database {
             + "Content: " + content
         )
 
-        // Create sql query
-        var sql: string = 'INSERT IGNORE INTO `' + channelName + '` (\
+        // Add Message to the table
+        this.query('INSERT IGNORE INTO `' + channelName + '` (\
             username, \
             userId, \
             message, \
             timestamp, \
             messageId) \
-            VALUES (?, ?, ?, ?, ?)';
-
-        // Add Message to the table
-        this.query(sql, [
+            VALUES (?, ?, ?, ?, ?)', [
             username,
             userId,
             content,
@@ -114,15 +107,16 @@ export class Bot_Database {
         const reactionName: string = reaction.emoji.identifier;
 
         // Extract reaction data
-        if (!reaction.message.guild) return;
-        if (reaction.message.channel.isDMBased()) return;
-        const server = this.servers[reaction.message.guild.id];
-        const messageId: string = reaction.message.id;
-        const channelName: string = reaction.message.channel.name;
+        if (!message.guild) return;
+        if (message.channel.isDMBased()) return;
+        const server = this.servers[message.guild.id];
+        const messageId: string = message.id;
+        const channelName: string = message.channel.name;
         const reactionType: string = reactionName === server.upvote ? 'reactionUpvote' : 'reactionDownvote';
         var reactionCount = Number(reaction.count);
 
-        (await reaction.users.fetch()).forEach(user => {
+        const users: Collection<string, User> = await reaction.users.fetch();
+        users.forEach((user: User) => {
             if (user.bot) {
                 reactionCount--;
             }
@@ -137,14 +131,11 @@ export class Bot_Database {
             + "Count: " + reactionCount
         )
 
-        // Create query to update the Reaction Count
-        var sql: string = "UPDATE `" + channelName + "` SET " + reactionType + " = " + reactionCount + " WHERE messageId = '" + messageId + "'";
-
         // Execute the query
-        await this.query(sql);
+        this.query("UPDATE `" + channelName + "` SET " + reactionType + " = " + reactionCount + " WHERE messageId = '" + messageId + "'");
     }
 
-    async replyDM(message: Message): Promise<void> {
+    replyDM(message: Message): void {
         if (message.author.bot) return;
 
         this.logMessage(message);
@@ -152,9 +143,9 @@ export class Bot_Database {
         message.author.send(this.bot.dmReply);
     }
 
-    async addMessage(message: Message): Promise<void> {
+    addMessage(message: Message): void {
         // Reply to DMs
-        if (!message.guild) await this.replyDM(message);
+        if (!message.guild) this.replyDM(message);
 
         // Filter messages
         if (!utls.validMessage(message, this.servers)) return;
@@ -163,13 +154,13 @@ export class Bot_Database {
 
         // Create Table if it doesn't exist yet
         if (message.channel.isDMBased()) return;
-        await this.createVotedChannel(message.channel.name);
+        this.createVotedChannel(message.channel.name);
 
         // Add reactions
-        await message.react(this.servers[serverId].upvote);
-        await message.react(this.servers[serverId].downvote);
+        message.react(this.servers[serverId].upvote);
+        message.react(this.servers[serverId].downvote);
 
-        await this.logMessage(message);
+        this.logMessage(message);
     }
 }
 
