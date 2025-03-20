@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, Collection, Guild, GuildTextBasedChannel, Message, SlashCommandBuilder, Snowflake, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, Collection, GuildTextBasedChannel, Message, SlashCommandBuilder, Snowflake } from "discord.js";
 import { read } from '../../lib/config';
 import * as utls from '../../lib/utils';
 import { database } from '../../index';
@@ -6,7 +6,7 @@ import { Config } from "../../lib/types";
 
 const cfg: Config = read();
 
-export var data: SlashCommandBuilder = new SlashCommandBuilder()
+export const data: SlashCommandBuilder = new SlashCommandBuilder()
     .setName('add-channel')
     .setDescription('Adds the whole channel to the database')
     .setDefaultMemberPermissions(0x8);
@@ -18,8 +18,8 @@ export function execute(interaction: ChatInputCommandInteraction): void {
 
         console.log("Adding Channel " + channel.name + " to the Database");
 
-        var before: Snowflake = null;
-        var done: boolean = false
+        let before: Snowflake = null;
+        let done: boolean = false
         while (!done) {
             channel.messages.fetch({ limit: 100, before }).then((messages: Collection<Snowflake, Message<true>>) => {
                 if (messages.size > 0) {

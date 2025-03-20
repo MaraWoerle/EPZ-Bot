@@ -1,21 +1,17 @@
 {
   "name": "epz-bot",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "author": "Mara Wörle",
-  "main": "index.js",
-  "types": "lib/types.ts",
+  "main": "index.ts",
+  "type": "module",
   "files": [
-    "index.ts",
-    "deploy-commands.ts",
-    "lib/",
-    "config.json",
-    "commands/"
+    "src/*",
+    "build/*"
   ],
   "scripts": {
-    "build": "mv -n default-config.json config.json || echo config already exists; tsc -p tsconfig.json && echo build finished successfully",
-    "test": "echo no tests specified",
-    "deploy-commands": "node ./build/deploy-commands.js",
-    "start": "node ./build/index.js"
+    "build": "npx tsc",
+    "test": "tsc --noEmit && npx eslint",
+    "start": "node build/index.js"
   },
   "license": "MIT",
   "description": "",
@@ -23,6 +19,15 @@
     "discord.js": "^14.15.3",
     "mariadb": "^3.3.1",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^5.5.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@types/node": "^22.13.10",
+    "eslint": "^9.20.1",
+    "globals": "^15.14.0",
+    "tslib": "^2.8.1",
+    "typescript-eslint": "^8.24.0"
   }
 }

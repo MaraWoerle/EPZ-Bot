@@ -4,6 +4,9 @@ build
 # Config
 config.json
 
+# Database
+database
+
 # Logs
 logs
 *.log

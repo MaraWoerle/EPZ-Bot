@@ -1,8 +1,9 @@
 import * as mariadb from 'mariadb';
 import { Connection } from 'mariadb';
-import { json_bot, json_database, json_servers } from './types';
-import { Collection, Message, MessageReaction, Snowflake, User } from 'discord.js';
-import * as utls from './utils';
+import { json_bot, json_database, json_servers } from './types.js';
+import { Collection, Message, MessageReaction, User } from 'discord.js';
+import * as utls from './utils.js';
+import { console } from 'node:inspector/promises';
 
 export class Bot_Database {
     config: json_database;
@@ -16,19 +17,21 @@ export class Bot_Database {
     }
 
     async connect(): Promise<Connection> {
-        return mariadb.createConnection({
+        const pool = mariadb.createPool({
             host: this.config.host,
             user: this.config.user,
             password: this.config.password,
-            database: this.config.name
-        });
+            database: this.config.name,
+        })
+        const conn = await pool.getConnection();
+        return conn;
     }
 
     async query(sql: string, values: Array<string> = []): Promise<string> {
         // Execute a query to the Database
-        var res: string;
-        var conn: Connection;
-        console.log("Executing: " + sql);
+        let res: string;
+        let conn: Connection;
+        console.log("Executing: " + sql.replace(/\s{2,}/g, ' '));
         try {
             conn = await this.connect();
             res = await conn.query(sql, values);
@@ -95,7 +98,7 @@ export class Bot_Database {
     }
 
     async updateReactionCount(reaction: MessageReaction): Promise<void> {
-        var message: Message = await reaction.message.fetch();
+        const message: Message = await reaction.message.fetch();
 
         // Filter reactions
         if (!utls.validMessage(message, this.servers)) return;
@@ -113,7 +116,7 @@ export class Bot_Database {
         const messageId: string = message.id;
         const channelName: string = message.channel.name;
         const reactionType: string = reactionName === server.upvote ? 'reactionUpvote' : 'reactionDownvote';
-        var reactionCount = Number(reaction.count);
+        let reactionCount = Number(reaction.count);
 
         const users: Collection<string, User> = await reaction.users.fetch();
         users.forEach((user: User) => {
@@ -150,7 +153,7 @@ export class Bot_Database {
         // Filter messages
         if (!utls.validMessage(message, this.servers)) return;
         if (!message.guild) return;
-        var serverId: string = message.guild.id;
+        const serverId: string = message.guild.id;
 
         // Create Table if it doesn't exist yet
         if (message.channel.isDMBased()) return;

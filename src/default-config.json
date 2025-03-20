@@ -5,9 +5,9 @@
         "dmReply": "<Reply to all DMs>"
     },
     "database": {
-        "host": "<Database Host>",
-        "name": "<Database Name>",
-        "user": "<Database User>",
+        "host": "epz-db",
+        "name": "epz_db",
+        "user": "epz_bot",
         "password": "<Database Password>"
     },
     "servers": {
