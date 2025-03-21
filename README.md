@@ -10,44 +10,22 @@ A bot to keep track of all messages in certain channels, manage them with upvote
 
 ### Requirements
 
-- NodeJs
-- Typescript
-- A MariaDB Database
+- Docker/Podman
+- A MariaDB Database [optional]
 
 ### Installation
 
 - Copy this folder to the destination where you want the bot to reside
-- Open the folder in a console and install the npm package
-
-```bash
-npm install
-```
-
 - Create a file `config.json` and configure it
-- Run the Project (You have two Options, depending if you have ts-node installed)
-
-###### 1. Option (without ts-node)
-
-- Build the project
+- Open the folder in a console and start the containers
 
 ```bash
-npm run build
+docker-compose up -d
 ```
-- Run the `build/index.js` file
 
 ```bash
-node ./build/index.js
+podman-compose up -d
 ```
-###### 2. Option (with ts-node)
-
-- Run the `index.ts` file
-
-```bash
-ts-node index.ts
-```
-
-
-> Note: If you are on Linux xou can run the bot in the background either as [systemd service](https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html) or as [screen](https://www.gnu.org/software/screen/manual/screen.html)
 
 ---
 

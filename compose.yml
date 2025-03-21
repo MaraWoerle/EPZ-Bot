@@ -1,0 +1,30 @@
+services:
+  epz-bot:
+    container_name: epz-bot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./config.json:/epz-bot/config.json
+    restart: always
+    depends_on:
+      epz-db:
+        condition: service_healthy
+  epz-db:
+    container_name: epz-db
+    image: mariadb:latest
+    env_file: .env
+    ports:
+      - '127.0.0.1:3306:3306'
+    environment:
+      - MARIADB_USER=epz_bot
+      - MARIADB_DATABASE=epz_db
+    volumes:
+      - ./database:/var/lib/mariadb
+    restart: always
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
