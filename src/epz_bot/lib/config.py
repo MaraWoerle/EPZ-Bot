@@ -40,3 +40,6 @@ class Config:
 
     def get_channel_ids(self, server_id: str) -> list[str]:
         return self.config['servers'][server_id]['channelIds']
+
+    def get_reaction(self, message: discord.Message, emoji_name: str) -> discord.Reaction:
+        return [reaction for reaction in message.reactions if reaction.emoji.name == emoji_name][0]

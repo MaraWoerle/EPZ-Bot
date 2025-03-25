@@ -1,17 +1,25 @@
-import logging
 import discord
 
 from epz_bot.lib.config import Config
 from epz_bot.lib.database import Database
 from epz_bot.lib.log import log
 
-cfg = Config('config.json')
+cfg = Config('config/epz-bot.json')
 db = Database(cfg.config["database"])
 
 
 class EPZClient(discord.Client):
     async def on_ready(self):
         log.info('Logged on as %s!', self.user)
+
+    async def fetch_message(self, channel_id: int, message_id: int) -> discord.Message | None:
+        channel = await self.fetch_channel(channel_id)
+
+        message = await channel.fetch_message(message_id)  # type: ignore[union-attr]
+        return message
+
+    async def fetch_message_payload(self, payload):
+        return await self.fetch_message(payload.channel_id, payload.message_id)
 
     # React to new messages
     async def on_message(self, message: discord.Message):
@@ -30,6 +38,9 @@ class EPZClient(discord.Client):
 
         db.create_message(message)
 
+    async def on_raw_message_edit(self, payload):
+        await self.on_message_edit(None, await self.fetch_message_payload(payload))
+
     # Delete Message upon Deletion
     async def on_message_delete(self, message: discord.Message):
         if not cfg.validate_message(message):
@@ -40,6 +51,9 @@ class EPZClient(discord.Client):
     async def on_bulk_message_delete(self, messages: list[discord.Message]):
         for message in messages:
             await self.on_message_delete(message)
+
+    async def on_raw_message_delete(self, payload):
+        await self.on_message_delete(await self.fetch_message_payload(payload))
 
     # Add Reactions
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User):
@@ -52,6 +66,16 @@ class EPZClient(discord.Client):
 
     async def on_reaction_remove(self, reaction: discord.Reaction, user: discord.User):
         await self.on_reaction_add(reaction, user)
+
+    async def on_raw_reaction_add(self, payload):
+        user = await self.fetch_user(payload.user_id)
+        message = await self.fetch_message_payload(payload)
+        reaction = cfg.get_reaction(message, payload.emoji.name)
+
+        await self.on_reaction_add(reaction, user)
+
+    async def on_raw_reaction_remove(self, payload):
+        await self.on_raw_reaction_add(payload)
 
 
 def start():

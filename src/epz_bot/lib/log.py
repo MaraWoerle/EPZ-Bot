@@ -1,6 +1,8 @@
-import sys
 import logging
+import logging.config
+import yaml
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.StreamHandler(sys.stdout))
-log.addHandler(logging.FileHandler('epz-bot.log'))
+with open('config/logging.yml', 'rt', encoding="utf-8") as f:
+    logging.config.dictConfig(yaml.safe_load(f.read()))
+
+log = logging.getLogger('root')

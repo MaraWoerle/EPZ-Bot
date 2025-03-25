@@ -7,7 +7,7 @@ packages = ["src/epz_bot"]
 
 [project]
 name = "epz_bot_mwoe"
-version = "4.0.5"
+version = "4.1.0"
 authors = [
     { name="Mara Wörle", email="mail@m-woerle.de" },
 ]
@@ -24,7 +24,11 @@ dependencies = [
     "mariadb==1.1.12",
     "discord.py==2.5.2",
     "typer==0.15.2",
+    "pyyaml==6.0.2",
 ]
 
 [project.scripts]
 start = "epz_bot.cli:app"
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]

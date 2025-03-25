@@ -31,7 +31,7 @@ podman-compose up -d
 
 ## Configuration
 
-The `config.json` should include the following options:
+The `config/epz-bot.json` should include the following options:
 
 ```json
 {
@@ -59,7 +59,7 @@ The `config.json` should include the following options:
 }
 ```
 
-> Note: You can add as many channels as you desire.
+> Note: You can add as many channels or servers as you desire.
 
 ---
 

@@ -1,6 +1,7 @@
 .env
 dist
-config.json
+epz-bot.json
+log
 __pycache__
 database
 logs

@@ -1,0 +1,22 @@
+{
+    "bot": {
+        "clientId": "<id>",
+        "token": "<token>",
+        "dmReply": "<dmReply>"
+    },
+    "database": {
+        "host": "<dbHost>",
+        "name": "<dbName>",
+        "user": "<dbUser>",
+        "password": "<dbPassword>"
+    },
+    "servers": {
+        "<serverId>": {
+            "channelIds": [
+                "<channelId>"
+            ],
+            "upvote": "<upvoteEmoji>",
+            "downvote": "<downvoteEmoji>"
+        }
+    }
+}

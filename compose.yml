@@ -5,7 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./config.json:/epz-bot/config.json
+      - ./config:/epz-bot/config
+      - ./log:/epz-bot/log
     restart: always
     depends_on:
       epz-db:
@@ -20,7 +21,7 @@ services:
       - MARIADB_USER=epz_bot
       - MARIADB_DATABASE=epz_db
     volumes:
-      - ./database:/var/lib/mariadb
+      - ./database:/var/lib/mysql
     restart: always
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
