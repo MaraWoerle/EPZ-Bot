@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 
-import src.lib.utils as utils
+from src.lib import utils
 from src.lib.database import db
 from src.lib.config import cfg
 from src.lib.log import log

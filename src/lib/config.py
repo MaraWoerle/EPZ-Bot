@@ -5,7 +5,8 @@ import discord
 
 class Config:
     def __init__(self, path: str):
-        self.__config = json.load(open(path, encoding='utf-8'))
+        with open(path, encoding='utf-8') as config_file:
+            self.__config = json.load(config_file)
 
     def validate_channel(self, channel) -> bool:
         servers = self.__config['servers']

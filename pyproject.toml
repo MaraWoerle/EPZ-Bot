@@ -33,3 +33,11 @@ start = "cli:app"
 
 [tool.mypy]
 disable_error_code = ["import-untyped"]
+
+[tool.pylint]
+max-line-length=120
+disable = [
+    "C0114",
+    "C0115",
+    "C0116",
+]
