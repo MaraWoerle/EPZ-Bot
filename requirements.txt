@@ -1,2 +1,0 @@
-mariadb=1.1.12
-discord.py=2.5.2
