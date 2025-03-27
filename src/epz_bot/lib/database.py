@@ -2,6 +2,7 @@ import discord
 import mariadb
 
 from epz_bot.lib.log import log
+from epz_bot.lib.config import cfg
 
 
 class Database:
@@ -21,6 +22,17 @@ class Database:
 
         with self.__database.cursor() as cursor:
             cursor.execute(command, params)
+
+    def __get_content(self, message: discord.Message) -> str:
+        content = message.content
+
+        for sticker in message.stickers:
+            content += sticker.url
+
+        for attachment in message.attachments:
+            content += attachment.url
+
+        return content
 
     def create_channel(self, channel_id: str) -> None:
         sql = 'CREATE TABLE IF NOT EXISTS `' + channel_id + '''` (
@@ -48,7 +60,7 @@ class Database:
 
         self.__query(sql, [channel_id])
 
-    def create_message(self, message: discord.Message) -> None:
+    def update_message(self, message: discord.Message) -> None:
         sql = 'REPLACE INTO `' + str(message.channel.id) + '''` (
                 username,
                 userId,
@@ -61,7 +73,7 @@ class Database:
         self.__query(sql, [
             message.author.name,
             message.author.id,
-            message.content,
+            self.__get_content(message),
             message.created_at.isoformat(),
             message.id
         ])
@@ -70,7 +82,7 @@ class Database:
         self.__query('DELETE FROM `' + str(message.channel.id) + '` WHERE messageId=' + str(message.id))
 
     async def update_reaction(self, reaction: discord.Reaction, reaction_type: str) -> None:
-        self.create_message(reaction.message)
+        self.update_message(reaction.message)
 
         users = [user.bot async for user in reaction.users()]
 
@@ -80,3 +92,6 @@ class Database:
             + ' WHERE messageId = ' + str(reaction.message.id)
 
         self.__query(sql)
+
+
+db = Database(cfg.get_database_cfg())
