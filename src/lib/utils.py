@@ -1,6 +1,7 @@
 import discord
-from epz_bot.lib.config import cfg
-from epz_bot.lib.database import db
+
+from src.lib.config import cfg
+from src.lib.database import db
 
 
 async def add_reactions(message: discord.Message):

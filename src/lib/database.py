@@ -1,8 +1,8 @@
 import discord
 import mariadb
 
-from epz_bot.lib.log import log
-from epz_bot.lib.config import cfg
+from src.lib.log import log
+from src.lib.config import cfg
 
 
 class Database:

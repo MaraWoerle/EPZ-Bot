@@ -1,9 +1,10 @@
 import discord
 from discord import app_commands
-import epz_bot.lib.utils as utls
-from epz_bot.lib.database import db
-from epz_bot.lib.config import cfg
-from epz_bot.lib.log import log
+
+import src.lib.utils as utils
+from src.lib.database import db
+from src.lib.config import cfg
+from src.lib.log import log
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -31,7 +32,7 @@ async def add_channel(interaction: discord.Interaction) -> None:
         async for message in interaction.channel.history(limit=None, before=last_message):
             if cfg.validate_message(message):
                 counter += 1
-                await utls.add_reactions(message)
+                await utils.add_reactions(message)
                 db.update_message(message)
 
             last_message = message.created_at
@@ -57,19 +58,19 @@ async def on_message(message: discord.Message):
     if not cfg.validate_message(message):
         return
 
-    await utls.add_reactions(message)
+    await utils.add_reactions(message)
 
     db.update_message(message)
 
 
 @client.event
 async def on_raw_message_edit(payload):
-    await utls.edit_message(await fetch_message(payload.channel_id, payload.message_id))
+    await utils.edit_message(await fetch_message(payload.channel_id, payload.message_id))
 
 
 @client.event
 async def on_raw_message_delete(payload):
-    await utls.delete_message(await fetch_message(payload.channel_id, payload.message_id))
+    await utils.delete_message(await fetch_message(payload.channel_id, payload.message_id))
 
 
 @client.event
@@ -80,7 +81,7 @@ async def on_raw_reaction_add(payload):
 
 @client.event
 async def on_raw_reaction_remove(payload):
-    await utls.update_reactions(await fetch_message(payload.channel_id, payload.message_id))
+    await utils.update_reactions(await fetch_message(payload.channel_id, payload.message_id))
 
 
 @client.event
