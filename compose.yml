@@ -1,6 +1,8 @@
 services:
   epz-bot:
     container_name: epz-bot
+    # You can also use a prebuild image
+    # image: ghcr.io/marawoerle/epz-bot:main
     build:
       context: .
       dockerfile: Dockerfile
