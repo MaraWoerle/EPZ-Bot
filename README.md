@@ -6,6 +6,10 @@ A bot to keep track of all messages in certain channels, manage them with upvote
 
 ---
 
+## Notice
+
+*This Project has been moved to [Codeberg](https://codeberg.org/marawoerle/epz-bot)*
+
 ## Usage
 
 ### Requirements
